@@ -218,3 +218,156 @@ GROUP BY emp_id;
 
 
 --wildcards -> LIKE keyword
+
+SELECT * FROM client;
+
+-- % -> ANY NUMBER OF CHARACTERS
+-- _ -> ONE CHARACTER
+
+
+--select clients who are an LLC
+SELECT client_name
+FROM client
+WHERE client_name LIKE '%LLC';
+
+
+
+SELECT * FROM branch_suppliers;
+
+--Find any branch suppliers who are in the label business
+
+SELECT *
+FROM branch_suppliers
+WHERE supplier_name LIKE '%Labels';
+
+--find any employee born in october
+SELECT first_name, last_name 
+FROM employee
+WHERE birth_day LIKE '____-10%';
+
+
+
+SELECT first_name, last_name 
+FROM employee
+WHERE birth_day LIKE '%10%';
+
+SELECT * FROM employee;
+
+
+-- FIND CLIENTS WHO ARE SCHOOLS
+SELECT *
+FROM client
+WHERE client_name LIKE '%School';
+
+-- ***********UNIONS IN SQL***********************
+-- COMBINE THE RESULTS OF MULTIPLE SELECT STATEMENTS INTO ONE
+--IN ORDER TO GET A UNION
+--WE NEED TO HAVE THE SAME NUMBER OF COLUMNS FROM EACH SELECT STATEMENT
+--AND THE DATA TYPE OF EACH COLUMN MUST BE THE SAME
+
+--FIND A LIST OF ALL EMPLOYEES AND THE BRANCH NAME
+SELECT first_name AS Company_Names
+FROM employee
+UNION
+SELECT branch_name 
+FROM branch
+UNION
+SELECT client_name
+FROM client;
+
+
+--find the list of all money spend or earned by the company'
+SELECT SUM(salary) 
+FROM employee
+UNION
+SELECT SUM(total_sales)
+FROM works_with;
+
+--*******************JOINS************************
+-- JOINS -> used to combine rows from two or more columns based on a related column between them
+-- used when we want to combine the results of two or more tables
+
+
+INSERT INTO branch VALUES (4, 'Buffalo', NULL, NULL);
+
+SELECT * FROM branch;
+
+--find all branches and the name of their managers
+
+
+-- 4 TYPES OF JOINS
+-- THIS IS A TYPE OF INNER JOIN
+--INNER JOIN RETURNS THE ROWS WITH THE COMMON VALUES
+SELECT employee.emp_id, employee.first_name AS Managers, branch.branch_name
+FROM employee
+JOIN branch
+ON employee.emp_id = branch.mgr_id;
+
+
+--in a left join we include all of the rows from the left table
+SELECT employee.emp_id, employee.first_name AS Managers, branch.branch_name
+FROM employee
+LEFT JOIN branch
+ON employee.emp_id = branch.mgr_id;
+
+
+--in a RIGHT join we include all of the rows from the RIGHT table
+SELECT employee.emp_id, employee.first_name AS Managers, branch.branch_name
+FROM employee
+RIGHT JOIN branch
+ON employee.emp_id = branch.mgr_id;
+
+
+--*****************NESTED QUERIES*****************
+-- MULTIPLE SELECT STATEMENTS TO GET A SPECFIC PIECE OF INFORMATION
+
+--FIND ALL EMPLOYEES WHO HAVE SOLD OVER 30,000 TO A SINGLE CLIENT
+
+
+SELECT employee.first_name, employee.last_name
+FROM employee
+WHERE employee.emp_id IN (
+SELECT works_with.emp_id
+FROM works_with
+WHERE works_with.total_sales > 30000
+);
+
+
+
+--FIND ALL THE CLIENTS WHO ARE HANDLED BY THE BRANCH THAT MICHAEL SCOTT MANAGES
+-- ASSUMMING WE KNOW MICHEALS ID
+
+SELECT client.client_name 
+FROM client
+WHERE client.branch_id IN (
+    SELECT branch.branch_id
+    FROM branch
+    WHERE branch.mgr_id = 102
+);
+
+SELECT * FROM client;
+
+
+
+--deleting entries in the data basee when they have foreign keys associated to them
+--ON DELETE CASCADE -> if the associated foreign key gets deleted, then delete the entire row
+--ON DELETE SET NULL -> if the associated foreign key gets deleted, then set that cell to null
+
+--delete a row/micheal scott from the database
+DELETE FROM employee
+WHERE emp_id = 102;
+
+
+SELECT * from employee;
+SELECT * from branch;
+
+
+--deleting a branch and checking the cascading results in branch_suppliers
+-- aprimary key cant have a null value
+
+
+DELETE FROM branch
+WHERE branch_id = 2;
+
+
+SELECT * from branch_suppliers;
